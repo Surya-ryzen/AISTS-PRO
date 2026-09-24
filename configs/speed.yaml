@@ -1,0 +1,14 @@
+speed:
+  fps: 30
+
+  pixel_to_meter: 0.05
+
+  smoothing_window: 5
+
+  optical_flow:
+    pyr_scale: 0.5
+    levels: 3
+    winsize: 15
+    iterations: 3
+    poly_n: 5
+    poly_sigma: 1.2

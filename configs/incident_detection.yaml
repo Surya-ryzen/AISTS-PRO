@@ -1,0 +1,8 @@
+incident_detection:
+  speed_violation:
+    enabled: true
+    speed_limit_kmh: 50
+    tolerance_kmh: 5
+
+  accident:
+    enabled: true

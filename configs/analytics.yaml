@@ -1,0 +1,24 @@
+analytics:
+
+  density:
+    max_vehicles: 50
+
+  queue:
+    speed_threshold: 5.0
+
+  waiting:
+    speed_threshold: 2.0
+
+  pcu:
+
+    motorcycle: 0.5
+
+    bicycle: 0.5
+
+    car: 1.0
+
+    auto: 1.2
+
+    bus: 3.0
+
+    truck: 3.0

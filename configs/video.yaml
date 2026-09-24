@@ -1,0 +1,8 @@
+video:
+  source: datasets/videos/raw/traffic_rear.mp4
+  width: 1280
+  height: 720
+  target_fps: 30
+  loop_video: true
+  buffer_size: 5
+  display: true

@@ -1,0 +1,6 @@
+roi:
+  # Motion-based, conservative estimate; not a road/divider segmentation model.
+  direction: nearest
+  calibration_frames: 60
+  minimum_tracks: 4
+  minimum_motion_pixels: 8

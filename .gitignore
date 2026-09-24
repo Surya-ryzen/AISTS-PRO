@@ -1,0 +1,232 @@
+################################################################################
+# AI SMART TRAFFIC SYSTEM
+# .gitignore
+################################################################################
+
+########################
+# Python
+########################
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.so
+
+########################
+# Virtual Environments
+########################
+.venv/
+venv/
+env/
+ENV/
+
+########################
+# Environment Variables
+########################
+.env
+.env.*
+!.env.example
+
+########################
+# Logs
+########################
+logs/
+*.log
+*.out
+*.err
+
+########################
+# Database
+########################
+*.db
+*.sqlite
+*.sqlite3
+
+########################
+# Python Build
+########################
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+
+########################
+# Coverage
+########################
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.pytest_cache/
+.week10-local/
+Ultralytics/
+
+########################
+# Type Checking
+########################
+.mypy_cache/
+.pyre/
+.pytype/
+
+########################
+# Lint
+########################
+.ruff_cache/
+
+########################
+# Jupyter
+########################
+.ipynb_checkpoints/
+
+########################
+# IDE
+########################
+.vscode/
+.idea/
+
+########################
+# OS
+########################
+.DS_Store
+Thumbs.db
+desktop.ini
+
+########################
+# Node / React
+########################
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+########################
+# AI Models
+########################
+models/*.pt
+models/*.pth
+models/*.ckpt
+models/*.onnx
+models/*.weights
+models/*.engine
+models/*.tflite
+
+########################
+# Large Datasets
+########################
+datasets/raw/
+datasets/temp/
+datasets/cache/
+*.zip
+*.tar
+*.gz
+*.7z
+
+########################
+# Model Cache
+########################
+.cache/
+.huggingface/
+torch_cache/
+
+########################
+# TensorFlow
+########################
+events.out.tfevents.*
+checkpoint
+checkpoints/
+
+########################
+# PyTorch
+########################
+runs/
+wandb/
+
+########################
+# YOLO
+########################
+runs/
+predictions/
+results/
+
+########################
+# Temporary Files
+########################
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*.orig
+
+########################
+# Docker
+########################
+docker-compose.override.yml
+
+########################
+# Deployment
+########################
+deployment/tmp/
+deployment/cache/
+
+########################
+# Local Configuration
+########################
+*.local
+*.secret
+
+########################
+# Secrets
+########################
+*.pem
+*.key
+*.crt
+
+########################
+# Media
+########################
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+########################
+# Generated Reports
+########################
+reports/
+exports/
+
+########################
+# Testing
+########################
+.tox/
+.nox/
+
+########################
+# Miscellaneous
+########################
+*.pid
+*.seed
+*.stackdump
+
+# Local backups and user-supplied training media
+backups/
+datasets/emergency_initial/

@@ -1,0 +1,10 @@
+tracking:
+  tracker: "bytetrack.yaml"
+
+  persist: true
+
+  confidence_threshold: 0.35
+
+  iou_threshold: 0.45
+
+  display_track_id: true

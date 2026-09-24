@@ -1,0 +1,56 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Road and lane setup</title>
+
+<style>body{font:16px system-ui;background:#101826;color:#edf4ff;margin:24px auto;max-width:1280px;padding:0 16px}h1{margin-bottom:8px}p{line-height:1.5;color:#b8c9dc}button{padding:10px 16px;border:0;border-radius:6px;margin:4px;background:#294259;color:white;cursor:pointer}.save{background:#007e77}canvas{width:100%;background:#243347;cursor:crosshair;border-radius:8px}#status{padding:12px;background:#253245;position:sticky;top:0;z-index:2}#selection{font-weight:bold;color:#36d4ff}button:focus{outline:3px solid #36d4ff}a{color:#69dbd2}</style>
+
+<h1>Road and lane setup</h1><p>Keep the road region on the camera's intended side of the divider. Automatic estimates follow observed traffic; they may miss empty lanes. Review the view before using lane counts.</p>
+
+<div id="status">Loading the current video…</div>
+
+<p>1. Choose <b>Draw road</b> and click its corners in order. 2. Optionally choose <b>Add lane</b> and click each lane's corners from left to right. 3. Save. Without lane polygons, traffic bands are estimated inside your road. Use convex polygons; lane polygons must be inside the road and must not overlap.</p>
+
+<button id="road">Draw road</button><button id="remove-road">Remove road</button><button id="lane">Add lane</button><label>Selected lane <select id="lane-select"><option value="">None</option></select></label><button id="undo">Undo corner</button><button id="remove">Remove selected lane</button><button id="reload">Reload saved layout</button><button class="save" id="save">Save this video's layout</button>
+
+<p id="selection"></p><canvas id="canvas" width="1280" height="720"></canvas>
+
+<p>Red: monitored road. Blue: configured lanes. Vehicles outside the road are excluded. Vehicles inside the road but outside a lane remain unassigned. Saving resets current counts; older history remains. The red cross-road counting line is automatic; it is not a physical stop line.</p>
+
+<a href="/video-preview" target="_blank">Open processed video</a>
+
+<script>
+
+const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d'),image=new Image();
+
+let state,polygon=[],lanes=[],active=polygon;
+
+const status=document.querySelector('#status'),selection=document.querySelector('#selection');
+
+function draw(){const chooser=document.querySelector('#lane-select');chooser.replaceChildren(new Option('None',''),...lanes.map((_,i)=>new Option('Lane '+(i+1),String(i))));chooser.value=active===polygon?'':String(lanes.indexOf(active));ctx.clearRect(0,0,canvas.width,canvas.height);if(image.complete&&image.naturalWidth)ctx.drawImage(image,0,0,canvas.width,canvas.height);[polygon,...lanes].forEach((points,i)=>{if(!points.length)return;ctx.beginPath();points.forEach(([x,y],j)=>{if(j)ctx.lineTo(x*canvas.width,y*canvas.height);else ctx.moveTo(x*canvas.width,y*canvas.height)});ctx.closePath();ctx.strokeStyle=i?'#36d4ff':'#ff5353';ctx.lineWidth=3;ctx.stroke();points.forEach(([x,y])=>{ctx.beginPath();ctx.arc(x*canvas.width,y*canvas.height,5,0,7);ctx.fillStyle=ctx.strokeStyle;ctx.fill()});if(i){let x=points.reduce((s,p)=>s+p[0],0)/points.length,y=points.reduce((s,p)=>s+p[1],0)/points.length;ctx.font='bold 22px sans-serif';ctx.fillText('Lane '+i,x*canvas.width,y*canvas.height)}});selection.textContent=active===polygon?'Editing road boundary':'Editing lane '+(lanes.indexOf(active)+1)+' — '+active.length+' corners. Click around the lane on the image.'}
+
+async function load(){try{const r=await fetch('/road-setup/state');if(!r.ok)throw Error(await r.text());state=await r.json();polygon=state.polygon||[];lanes=state.lanes||[];active=polygon;status.textContent=state.source+' — '+state.status;image.src='/road-setup/frame?t='+Date.now();draw()}catch(e){status.textContent=e.message}}
+
+image.onload=draw;image.onerror=()=>status.textContent='Waiting for a video frame. Click Reload estimate in a few seconds.';
+
+function inside(p,poly){for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],dx=b[0]-a[0],dy=b[1]-a[1],d=dx*dx+dy*dy,t=d?Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/d)):0;const q=[a[0]+t*dx,a[1]+t*dy];if(Math.hypot(p[0]-q[0],p[1]-q[1])<0.012){p[0]=q[0];p[1]=q[1];return true}}let yes=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){let a=poly[i],b=poly[j];if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])yes=!yes}return yes}
+
+canvas.onclick=e=>{if(!state)return;const r=canvas.getBoundingClientRect();let p=[Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))];if(active!==polygon&&!inside(p,polygon)){status.textContent='This corner is outside the red road boundary. Redraw the road first if it excludes your lane.';return}active.push(p);status.textContent='Corner '+active.length+' added. Draw at least 3 corners around the lane, then Save or Add lane.';draw()};
+
+document.querySelector('#road').onclick=()=>{polygon=[];lanes=[];active=polygon;status.textContent='Draw at least 3 corners around the road, in order. Previous lanes cleared in draft; Save applies changes.';draw()};
+
+document.querySelector('#lane').onclick=()=>{if(polygon.length<3){status.textContent='Draw the road with at least 3 corners first.';return}if(active!==polygon&&active.length===0){status.textContent="Lane already selected. Click its corners on the image below.";canvas.scrollIntoView({block:"center",behavior:"smooth"});return}if(lanes.some(p=>p.length<3)){status.textContent='Finish the current lane with at least 3 corners, or Remove last lane.';return}if(lanes.length>=8)return;active=[];lanes.push(active);status.textContent='Click 4 corners around this lane inside the red road. A lane is an area, not a single line.';draw();canvas.scrollIntoView({block:'center',behavior:'smooth'})};
+
+document.querySelector('#undo').onclick=()=>{active.pop();draw()};
+
+document.querySelector('#remove').onclick=()=>{const i=lanes.indexOf(active);if(i<0){status.textContent='Choose a lane from Selected lane first.';return}lanes.splice(i,1);active=lanes[Math.min(i,lanes.length-1)]||polygon;status.textContent='Lane removed from draft. Click Save to apply.';draw()};
+document.querySelector('#lane-select').onchange=e=>{active=e.target.value===''?polygon:lanes[Number(e.target.value)];draw()};
+document.querySelector('#remove-road').onclick=()=>{polygon=[];lanes=[];active=polygon;status.textContent='Road and its lanes removed from draft. Save to pause road counting, or Draw road to replace it.';draw()};
+
+document.querySelector('#reload').onclick=load;
+
+document.querySelector('#save').onclick=async()=>{try{if(!state)throw Error('Wait for the video to load.');if(lanes.some(p=>p.length<3))throw Error('Each lane needs at least 3 corners. Finish it or Remove last lane.');const r=await fetch('/road-setup/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:state.source,polygon,lanes})});if(!r.ok){const d=await r.json();throw Error(d.detail)}status.textContent=polygon.length?'Saved. This layout will load automatically for this video. Saved road and lane boundaries appear in the preview.':'Saved: road removed and road counting paused until you draw and save a road.'}catch(e){status.textContent=e.message}};
+
+load();
+
+</script></html>
+

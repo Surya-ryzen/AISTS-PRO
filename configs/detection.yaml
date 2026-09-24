@@ -1,0 +1,15 @@
+detection:
+  model: "yolov8s.pt"
+
+  confidence_threshold: 0.25
+
+  iou_threshold: 0.45
+
+  device: "cpu"
+
+  img_size: 1280
+  vehicle_classes:
+    - car
+    - motorcycle
+    - bus
+    - truck
